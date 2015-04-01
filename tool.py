@@ -15,8 +15,8 @@ sys.setdefaultencoding('utf8')
 class QiniuTool(object):
     access_key = "hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn"
     secret_key = "pl5-DWcb2O3RLRkjtGjr1xX67VfOM6Q2HAlu-iG-7"
-    bucket_name = 'ndyd'
-    q = Auth("mjVPFqjtkmymps-JmNUJbY5YScuM4DcU3o7Vt36_", "opWBNXYSrejXCzQ0-kG20YcK5YaJ-2RuD_TzMCSM")
+    bucket_name = 'zq-image'
+    q = Auth("hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn", "pl5-DWcb2O3RLRkjtGj1xX67VfOM6Q2HAlu-iG-7")
     print q
 
     def __init__(self, url, directory):
@@ -50,11 +50,12 @@ class QiniuTool(object):
         ret, err = qiniu.put_file(token, name, self.directory)
         if err is not None:# error!
             sys.stderr.write('error:%s' % err)
+            print self.url + name
         else:
-            print self.url + name + image[image.find('.'):]
+            print self.url + name
 
 
 while True:
     directory = raw_input(u'输入文件地址'.encode('utf-8'))
-    qn = QiniuTool('7i7gqh.com1.z0.glb.clouddn.com', directory)
+    qn = QiniuTool('http://7i7gqh.com1.z0.glb.clouddn.com/', directory)
     qn.work()
