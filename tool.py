@@ -13,11 +13,8 @@ sys.setdefaultencoding('utf8')
 
 
 class QiniuTool(object):
-    access_key = "hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn"
-    secret_key = "pl5-DWcb2O3RLRkjtGjr1xX67VfOM6Q2HAlu-iG-7"
     bucket_name = 'zq-image'
-    q = Auth("hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn", "pl5-DWcb2O3RLRkjtGj1xX67VfOM6Q2HAlu-iG-7")
-    print q
+    q = Auth('hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn', 'pl5-DWcb2O3RLRkjtGj1xX67VfOM6Q2HAlu-iG-7')
 
     def __init__(self, url, directory):
         self.url = url
@@ -34,7 +31,7 @@ class QiniuTool(object):
         if w > 1000:
             h = int(1000 / float(w) * h)
             w = 1000
-            h = img.resize((w, h), Image.ANTIALIAS).save(self.directory)
+            img.resize((w, h), Image.ANTIALIAS).save(self.directory)
 
     def work(self):
         self.resize()
@@ -44,13 +41,10 @@ class QiniuTool(object):
                                    ';imageView2/2/h/320|saveas/' + self.get_name(name, '320') +
                                    ';imageView2/2/h/640|saveas/' + self.get_name(name, '640')
         }
-        mime_type = "text/plain"
-        localfile = __file__
         token = self.q.upload_token(bucket=self.bucket_name, key=name, policy=policy)
         ret, err = qiniu.put_file(token, name, self.directory)
-        if err is not None:# error!
+        if str(err)[5:].find('error') != -1:
             sys.stderr.write('error:%s' % err)
-            print self.url + name
         else:
             print self.url + name
 
