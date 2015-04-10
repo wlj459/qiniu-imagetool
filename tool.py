@@ -1,27 +1,25 @@
-# -*- coding: utf-8 -*-
-from qiniu import Auth
+﻿# -*- coding: utf-8 -*-
+import qiniu.conf
+import sys
 import os
-import qiniu
+import qiniu.io
+import qiniu.rs
 import base64
 import Image
-from time import strftime, localtime
-import sys
-
-
-reload(sys)
-sys.setdefaultencoding('utf8')
+from time import strftime,localtime
 
 
 class QiniuTool(object):
     bucket_name = 'zq-image'
-    q = Auth('hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn', 'pl5-DWcb2O3RLRkjtGj1xX67VfOM6Q2HAlu-iG-7')
+    qiniu.conf.ACCESS_KEY = "hbpHhfXp27MvRDhgG6aTblX-FQsncR9SUOpSfFTn"
+    qiniu.conf.SECRET_KEY = "pl5-DWcb2O3RLRkjtGj1xX67VfOM6Q2HAlu-iG-7"
 
     def __init__(self, url, directory):
         self.url = url
-        self.directory = directory.decode('utf8')
+        self.directory = directory.decode('GBK')
 
     def get_name(self, name, size):
-        name = self.bucket_name + ':' + name + '-' + size + self.directory[self.directory.find('.'):]
+        name = self.bucket_name + ':' + name + '-' + size
         name = base64.encodestring(name)
         return name
 
@@ -35,21 +33,36 @@ class QiniuTool(object):
 
     def work(self):
         self.resize()
-        name = strftime("%Y%m%d%H%M%S", localtime()) + self.directory[self.directory.find('.'):]
-        policy = {'persistentOps': 'imageView2/2/h/80|saveas/' + self.get_name(name, '80') +
-                                   ';imageView2/2/h/160|saveas/' + self.get_name(name, '160') +
-                                   ';imageView2/2/h/320|saveas/' + self.get_name(name, '320') +
-                                   ';imageView2/2/h/640|saveas/' + self.get_name(name, '640')
-        }
-        token = self.q.upload_token(bucket=self.bucket_name, key=name, policy=policy)
-        ret, err = qiniu.put_file(token, name, self.directory)
-        if str(err)[5:].find('error') != -1:
+
+        name = strftime("%Y%m%d%H%M%S", localtime())
+
+        policy = qiniu.rs.PutPolicy(self.bucket_name)
+        policy.saveKey = name
+        policy.persistentOps = 'imageView2/2/h/80|saveas/' \
+                               + self.get_name(name, '80') \
+                               + ';imageView2/2/h/160|saveas/' \
+                               + self.get_name(name, '160') \
+                               + ';imageView2/2/h/320|saveas/' \
+                               + self.get_name(name, '320') \
+                               + ';imageView2/2/h/640|saveas/' \
+                               + self.get_name(name, '640')
+        uptoken = policy.token()
+        extra = qiniu.io.PutExtra()
+
+        ret, err = qiniu.io.put_file(uptoken, None, self.directory, extra)
+        if err is not None:
             sys.stderr.write('error:%s' % err)
         else:
-            print self.url + name
+            print '7i7gqh.com1.z0.glb.clouddn.com/' + name + '\n\n\n'
 
 
 while True:
-    directory = raw_input(u'输入文件地址'.encode('utf-8'))
+    enter = raw_input(u'输入任意键继续'.encode('gbk'))
+    os.system('cls')
+    directory = raw_input(u'输入文件地址:\n\n'.encode('gbk'))
+    if directory[0] == '"':
+        directory = directory[1:len(directory) - 1]
+    print (u'\n\n文件正在上传。。。。。。。。。\n\n'.encode('gbk'))
+    print (u'图片链接地址：\n\n'.encode('gbk'))
     qn = QiniuTool('http://7i7gqh.com1.z0.glb.clouddn.com/', directory)
     qn.work()
